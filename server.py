@@ -334,13 +334,15 @@ def run_server(device_index: int = None, host: str = "127.0.0.1", port: int = 80
 
     threading.Thread(target=open_browser, daemon=True).start()
 
-    print(f"\n🚀 ASCII Studio is live at: http://{host}:{port}")
+    print(f"\n[+] ASCII Studio is live at: http://{host}:{port}")
     print("Press Ctrl+C to stop the server.\n")
 
     try:
-        uvicorn.run(app, host=host, port=port, log_level="warning")
-    except (KeyboardInterrupt, SystemExit, asyncio.CancelledError, BaseException):
+        uvicorn.run(app, host=host, port=port, log_level="info")
+    except (KeyboardInterrupt, SystemExit, asyncio.CancelledError):
         pass
+    except Exception as e:
+        print(f"Server error: {e}")
     finally:
         camera_enabled.clear()
         print("\nASCII Studio stopped.")

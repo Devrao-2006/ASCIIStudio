@@ -56,5 +56,5 @@ Examples:
 if __name__ == "__main__":
     try:
         main()
-    except (KeyboardInterrupt, SystemExit, BaseException):
+    except (KeyboardInterrupt, SystemExit):
         sys.exit(0)
