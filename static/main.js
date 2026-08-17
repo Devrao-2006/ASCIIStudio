@@ -131,8 +131,26 @@ function initToggles() {
   });
 }
 
+// ── Programmatic Slider Setter ────────────────────────────
+function setSliderParam(paramName, value) {
+  const ctrl = document.querySelector(`.control[data-param="${paramName}"]`);
+  if (!ctrl) return;
+  const input = ctrl.querySelector("input[type=range]");
+  const valEl = ctrl.querySelector(".val");
+  const realMin = parseFloat(ctrl.dataset.min);
+  const realStep= parseFloat(ctrl.dataset.step);
+  const isInt   = ctrl.dataset.int === "true";
+
+  const ticks = Math.round((value - realMin) / realStep);
+  input.value = ticks;
+  const display = isInt ? String(Math.round(value))
+                        : value.toFixed(realStep < 0.01 ? 3 : realStep < 0.1 ? 2 : 1);
+  valEl.textContent = display;
+  sendParam(paramName, isInt ? Math.round(value) : value);
+}
+
 // ── Theme selector ───────────────────────────────────────
-let currentThemeName = "Classic";
+let currentThemeName = "Full Color";
 const THEME_NAMES = ["Classic", "Amber", "Gold", "Ghost", "Warm"];
 
 function initThemes() {
@@ -140,9 +158,17 @@ function initThemes() {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".theme-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      const themeIdx = parseInt(btn.dataset.theme);
-      currentThemeName = THEME_NAMES[themeIdx] || "Theme";
-      sendParam("theme", themeIdx);
+      
+      if (btn.dataset.theme === "fullcolor") {
+        currentThemeName = "Full Color";
+        setSliderParam("blend_with_base", 1.0);
+      } else {
+        const themeIdx = parseInt(btn.dataset.theme);
+        currentThemeName = THEME_NAMES[themeIdx] || "Theme";
+        sendParam("theme", themeIdx);
+        // Automatically switch Color Blend to 0.0 so the chosen theme palette is immediately visible
+        setSliderParam("blend_with_base", 0.0);
+      }
     });
   });
 }
