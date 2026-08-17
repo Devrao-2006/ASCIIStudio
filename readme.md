@@ -13,6 +13,16 @@ Originally inspired by Garrett Gunnell's ([@Acerola_t](https://twitter.com/Acero
 * **Spatial Intensity Overdrive:** Artificially overdrives text luminance to compensate for the negative space inherent in terminal-based graphics, preventing "dull" outputs.
 * **Custom Color Themes:** Includes mathematically defined palettes (Classic Green, Amber Retro, Gold/Green, White/Purple).
 
+---
+
+## 📸 Example Outputs
+
+| Original Input | Full-Color ASCII | Amber CRT Theme | Classic Matrix Green |
+|:---:|:---:|:---:|:---:|
+| ![Original](doc/examples/original.png) | ![Full-Color](doc/examples/ascii_fullcolor.png) | ![Amber](doc/examples/ascii_amber.png) | ![Classic Green](doc/examples/ascii_classic_green.png) |
+
+---
+
 ## 🛠️ How It Works (The Rendering Pipeline)
 
 Unlike naive ASCII converters that simply map pixel brightness to a character array, this engine analyzes structural features to draw coherent outlines and shapes.
@@ -33,8 +43,8 @@ Unlike naive ASCII converters that simply map pixel brightness to a character ar
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/yourusername/ascii-rendering-engine.git](https://github.com/yourusername/ascii-rendering-engine.git)
-cd ascii-rendering-engine
+git clone [git@github.com:Devrao-2006/ASCIIStudio.git](git@github.com:Devrao-2006/ASCIIStudio.git)
+cd app
 
 ```
 

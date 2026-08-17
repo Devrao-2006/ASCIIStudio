@@ -229,10 +229,10 @@ class ASCIIEngine:
         # Apply intensity multiplier to theme ascii_color so original camera colors aren't blown out to white
         ascii_color_boosted = ascii_color * params.intensity
         blend = params.blend_with_base
-        text_color = blend * tile_color + (1.0 - blend) * ascii_color_boosted
+        text_color = blend * (tile_color * 1.35) + (1.0 - blend) * ascii_color_boosted
 
-        # Ambient cell background tinting when blend > 0 to preserve scene context
-        bg_color_tinted = (1.0 - blend) * bg_color + blend * (tile_color * 0.18)
+        # Ambient cell background fill to match original scene luminance (prevents 70% fill-factor dark loss)
+        bg_color_tinted = (1.0 - blend) * bg_color + blend * (tile_color * 0.50)
 
         ascii_val_exp = ascii_val.unsqueeze(-1)
         output_color = (1.0 - ascii_val_exp) * bg_color_tinted + ascii_val_exp * text_color

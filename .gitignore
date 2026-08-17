@@ -21,6 +21,7 @@ captures/temp_uploads/
 out_*.png
 preset_*.png
 output.png
+test.png
 
 # Environments & IDEs
 .venv/

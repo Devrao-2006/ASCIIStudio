@@ -93,6 +93,7 @@ Raw BGR Frame (NumPy)
 ## 🗃️ Module Reference
 
 ### [`main.py`](../main.py) — CLI Entry Point
+
 Parses subcommands and boots the appropriate mode:
 
 ```bash
@@ -104,16 +105,18 @@ python main.py video IN OUT     # Converts video file to ASCII MP4
 ---
 
 ### [`server.py`](../server.py) — FastAPI Web Server
+
 The bridge between the browser and the GPU engine.
 
-| Route | Method | Purpose |
-|:---|:---|:---|
-| `/` | GET | Serves `static/index.html` |
-| `/static/*` | GET | Serves CSS, JS assets |
+| Route         | Method      | Purpose                                                    |
+| :------------ | :---------- | :--------------------------------------------------------- |
+| `/`           | GET         | Serves `static/index.html`                                 |
+| `/static/*`   | GET         | Serves CSS, JS assets                                      |
 | `/video_feed` | GET (MJPEG) | Streams GPU-rendered frames as `multipart/x-mixed-replace` |
-| `/ws` | WebSocket | Receives JSON parameter updates from slider controls |
+| `/ws`         | WebSocket   | Receives JSON parameter updates from slider controls       |
 
 Key design decisions:
+
 - Camera capture runs on a **background daemon thread** — never blocks the async event loop.
 - Frame encoding is done in-thread with `cv2.imencode(".jpg", ..., [IMWRITE_JPEG_QUALITY, 85])` — minimal latency at 85% quality.
 - WebSocket handler applies incoming JSON keys directly onto `ASCIIParams` fields with type coercion (`float`, `int`, `bool`).
@@ -125,7 +128,8 @@ Key design decisions:
 **`load_or_generate_luts()`**  
 Loads the two bitmap LUT PNGs from `assets/`. If missing, generates them programmatically from hardcoded hex patterns and saves them back. LUTs are `float32` tensors normalized to `[0.0, 1.0]`.
 
-**`ASCIIEngine.__init__()`**  
+**`ASCIIEngine.__init__()`**
+
 - Detects `cuda` or `cpu` device.
 - Merges `edgesASCII` and `fillASCII` into a single `master_lut` tensor of shape `(8, 120)`.
 - Pre-defines 5 BGR palette vectors.
@@ -143,25 +147,25 @@ Main per-frame GPU pipeline. Returns a rendered `uint8` BGR NumPy array.
 
 `ASCIIParams` is a `@dataclass` acting as the shared mutable config between server and engine. Fields are updated directly by the WebSocket handler and read by the render thread each frame.
 
-| Field | Type | Default | Description |
-|:---|:---|:---|:---|
-| `zoom` | float | 1.0 | Affine zoom (min 1.0) |
-| `offset_x/y` | float | 0.0 | Viewport pan |
-| `kernel_size` | int | 2 | Gaussian blur kernel half-size |
-| `sigma` | float | 2.0 | Primary blur σ |
-| `sigma_scale` | float | 1.6 | Secondary blur scale factor |
-| `tau` | float | 1.0 | DoG subtraction weight |
-| `threshold` | float | 0.005 | Edge detection threshold |
-| `edge_threshold` | int | 8 | Minimum tile vote count |
-| `exposure` | float | 1.0 | Luminance multiplier |
-| `attenuation` | float | 1.0 | Gamma exponent |
-| `blend_with_base` | float | 0.0 | Source color blend ratio |
-| `intensity` | float | 2.0 | Text brightness overdrive |
-| `theme` | int | 0 | Palette index (0–4) |
-| `draw_edges` | bool | True | Draw edge characters |
-| `draw_fill` | bool | True | Draw fill characters |
-| `invert_luminance` | bool | False | Invert char density |
-| `view_mode` | int | 0 | 0=Render, 1=Edges, 4=Gray |
+| Field              | Type  | Default | Description                    |
+| :----------------- | :---- | :------ | :----------------------------- |
+| `zoom`             | float | 1.0     | Affine zoom (min 1.0)          |
+| `offset_x/y`       | float | 0.0     | Viewport pan                   |
+| `kernel_size`      | int   | 2       | Gaussian blur kernel half-size |
+| `sigma`            | float | 2.0     | Primary blur σ                 |
+| `sigma_scale`      | float | 1.6     | Secondary blur scale factor    |
+| `tau`              | float | 1.0     | DoG subtraction weight         |
+| `threshold`        | float | 0.005   | Edge detection threshold       |
+| `edge_threshold`   | int   | 8       | Minimum tile vote count        |
+| `exposure`         | float | 1.0     | Luminance multiplier           |
+| `attenuation`      | float | 1.0     | Gamma exponent                 |
+| `blend_with_base`  | float | 0.0     | Source color blend ratio       |
+| `intensity`        | float | 2.0     | Text brightness overdrive      |
+| `theme`            | int   | 0       | Palette index (0–4)            |
+| `draw_edges`       | bool  | True    | Draw edge characters           |
+| `draw_fill`        | bool  | True    | Draw fill characters           |
+| `invert_luminance` | bool  | False   | Invert char density            |
+| `view_mode`        | int   | 0       | 0=Render, 1=Edges, 4=Gray      |
 
 ---
 
@@ -207,5 +211,5 @@ python main.py image photo.jpg output.png
 python main.py video clip.mp4 output.mp4
 ```
 
-> **Python:** Use `Python\Python313\python.exe` — this is the environment where all dependencies (`torch`, `fastapi`, `uvicorn`, `opencv-python`) are installed. 
-Python 3.14 is Not compatable (yet)
+> **Python:** Use `Python\Python313\python.exe` — this is the environment where all dependencies (`torch`, `fastapi`, `uvicorn`, `opencv-python`) are installed.
+> Python 3.14 is Not compatable (yet)
