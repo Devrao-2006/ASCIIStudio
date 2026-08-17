@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# C++ / CUDA build artifacts
+*.obj
+*.exp
+*.lib
+*.pdb
+build/
+dist/
+*.egg-info/
+
+# Captures and temporary media
+captures/videos/
+captures/temp_uploads/
+*.mp4
+out_*.png
+preset_*.png
+output.png
+
+# Environments & IDEs
+.venv/
+venv/
+env/
+.vscode/
+.idea/
+
+# OS specific
+Thumbs.db
+Desktop.ini
+.DS_Store

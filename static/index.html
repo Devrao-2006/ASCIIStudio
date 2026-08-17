@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASCII Studio — Live GPU Renderer & Media Converter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- ── LEFT: Studio Viewport Column ────────────────────────── -->
+    <main class="viewport-col">
+      <div class="viewport-header">
+        <div class="brand">
+          <span class="brand-dot"></span>
+          <span class="brand-name">ASCII<span class="brand-accent">STUDIO</span></span>
+        </div>
+
+        <!-- Studio Mode Selector Tabs -->
+        <nav class="studio-tabs">
+          <button class="studio-tab active" data-tab="webcam" data-tooltip="Live Webcam Stream">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            <span>Webcam</span>
+          </button>
+          <button class="studio-tab" data-tab="image" data-tooltip="Upload, tweak & export ASCII photos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Convert Photo</span>
+          </button>
+          <button class="studio-tab" data-tab="video" data-tooltip="Upload, render & download ASCII videos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Convert Video</span>
+          </button>
+        </nav>
+
+        <div class="status-bar">
+          <span class="status-pill" id="status-pill">● LIVE</span>
+          <span class="status-device" id="status-device">GPU</span>
+        </div>
+      </div>
+
+      <!-- ① WEBCAM VIEWPORT -->
+      <div class="studio-view active" id="view-webcam">
+        <div class="video-wrap" id="video-wrap">
+          <div class="rec-badge" id="rec-badge"><span class="rec-dot"></span> REC <span id="rec-timer">00:00</span></div>
+          <img id="feed" src="/video_feed" alt="ASCII live feed" />
+          <div class="video-overlay-controls">
+            <button class="icon-btn record-btn" id="btn-record" data-tooltip="Record ASCII Video (R)">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="12" r="7"/>
+              </svg>
+            </button>
+            <button class="icon-btn" id="btn-fullscreen" data-tooltip="Toggle Fullscreen (F)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+              </svg>
+            </button>
+            <button class="icon-btn" id="btn-snapshot" data-tooltip="Take Photo (S)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="13" r="4"/><path d="M5 7h1a2 2 0 0 0 2-2 1 1 0 0 1 1-1h6a1 1 0 0 1 1 1 2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② IMAGE CONVERT VIEWPORT -->
+      <div class="studio-view" id="view-image">
+        <!-- Dropzone (shown when no image is loaded) -->
+        <div class="dropzone" id="img-dropzone">
+          <input type="file" id="img-file-input" accept="image/*" style="display:none" />
+          <div class="dropzone-inner">
+            <div class="dropzone-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <h3 class="dropzone-title">Drag & Drop Image Here</h3>
+            <p class="dropzone-sub">PNG, JPG, WEBP • Rendered live in your selected theme</p>
+            <button class="primary-btn" id="btn-browse-img">Browse Image</button>
+          </div>
+        </div>
+
+        <!-- Preview Container (shown when image is loaded) -->
+        <div class="media-preview-wrap" id="img-preview-wrap" style="display:none">
+          <img id="img-rendered-preview" alt="ASCII Rendered Photo" />
+          <div class="preview-actions-bar">
+            <button class="action-btn" id="btn-change-img">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload Another Image
+            </button>
+            <button class="primary-btn pulse-glow" id="btn-download-img">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export ASCII Photo (PNG)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ VIDEO CONVERT VIEWPORT -->
+      <div class="studio-view" id="view-video">
+        <!-- Video Dropzone -->
+        <div class="dropzone" id="vid-dropzone">
+          <input type="file" id="vid-file-input" accept="video/*" style="display:none" />
+          <div class="dropzone-inner">
+            <div class="dropzone-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <h3 class="dropzone-title">Drag & Drop Video Here</h3>
+            <p class="dropzone-sub">MP4, MOV, AVI • Rendered frame-by-frame on GPU</p>
+            <button class="primary-btn" id="btn-browse-vid">Browse Video</button>
+          </div>
+        </div>
+
+        <!-- Video Processing & Export Panel -->
+        <div class="video-job-panel" id="vid-job-panel" style="display:none">
+          <div class="job-card">
+            <div class="job-header">
+              <div class="job-meta">
+                <span class="job-icon">🎬</span>
+                <div>
+                  <h4 class="job-filename" id="vid-job-name">video.mp4</h4>
+                  <span class="job-status-txt" id="vid-job-status">Ready to process</span>
+                </div>
+              </div>
+              <button class="action-btn" id="btn-change-vid">Choose Different Video</button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-wrap" id="vid-progress-wrap" style="display:none">
+              <div class="progress-info">
+                <span id="vid-progress-pct">0%</span>
+                <span id="vid-frames-info">Frame 0/0</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="vid-progress-fill" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="job-actions">
+              <button class="primary-btn pulse-glow" id="btn-start-vid-convert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Start ASCII Video Render
+              </button>
+              <button class="primary-btn success-btn" id="btn-download-vid" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download Rendered MP4
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── RIGHT: Settings Sidebar ────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-inner">
+
+        <!-- ① View Mode -->
+        <section class="control-group">
+          <h3 class="group-title">View Mode</h3>
+          <div class="view-btns">
+            <button class="view-btn active" data-mode="0" data-tooltip="Final full ASCII art render">Render</button>
+            <button class="view-btn"        data-mode="1" data-tooltip="View Difference of Gaussians (DoG) edge map">Edges</button>
+            <button class="view-btn"        data-mode="4" data-tooltip="View grayscale camera feed">Gray</button>
+          </div>
+        </section>
+
+        <!-- ② Theme -->
+        <section class="control-group">
+          <h3 class="group-title">Theme Presets</h3>
+          <div class="theme-btns">
+            <button class="theme-btn active" data-theme="0" data-tooltip="Classic Matrix Green preset">Classic</button>
+            <button class="theme-btn"        data-theme="1" data-tooltip="Amber CRT Monitor preset">Amber</button>
+            <button class="theme-btn"        data-theme="2" data-tooltip="Golden Cyberpunk preset">Gold</button>
+            <button class="theme-btn"        data-theme="3" data-tooltip="Ghostly Purple-White preset">Ghost</button>
+            <button class="theme-btn"        data-theme="4" data-tooltip="Warm Retro Amber-Gold preset">Warm</button>
+          </div>
+        </section>
+
+        <!-- ③ Camera / Transform -->
+        <section class="control-group">
+          <h3 class="group-title">Transform</h3>
+          <div class="control" data-param="zoom" data-min="1.0" data-max="5.0" data-step="0.1" data-default="1.0" data-tooltip="Decrease to zoom in, increase to zoom out.">
+            <div class="control-header"><label>Zoom</label><span class="val">1.0×</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="offset_x" data-min="-1.0" data-max="1.0" data-step="0.05" data-default="0.0" data-tooltip="Horizontal position offset of zoom from center.">
+            <div class="control-header"><label>Offset X</label><span class="val">0.00</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="offset_y" data-min="-1.0" data-max="1.0" data-step="0.05" data-default="0.0" data-tooltip="Vertical position offset of zoom from center.">
+            <div class="control-header"><label>Offset Y</label><span class="val">0.00</span></div>
+            <input type="range" />
+          </div>
+        </section>
+
+        <!-- ④ Luminance & Color -->
+        <section class="control-group">
+          <h3 class="group-title">Luminance & Color</h3>
+          <div class="control" data-param="exposure" data-min="0.1" data-max="5.0" data-step="0.1" data-default="1.8" data-tooltip="Multiplication on base luminance to bring up ASCII density.">
+            <div class="control-header"><label>Exposure</label><span class="val">1.8</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="attenuation" data-min="0.1" data-max="5.0" data-step="0.05" data-default="0.85" data-tooltip="Exponent on luminance curve to adjust character contrast.">
+            <div class="control-header"><label>Attenuation</label><span class="val">0.85</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="blend_with_base" data-min="0.0" data-max="1.0" data-step="0.05" data-default="1.0" data-tooltip="Blend ASCII characters with original media colors (0 = Theme Palette, 1 = Full Source Color).">
+            <div class="control-header"><label>Color Blend 🎨</label><span class="val">1.00</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="intensity" data-min="0.5" data-max="5.0" data-step="0.1" data-default="1.0" data-tooltip="Overdrives brightness of theme characters against dark background.">
+            <div class="control-header"><label>Intensity</label><span class="val">1.0</span></div>
+            <input type="range" />
+          </div>
+        </section>
+
+        <!-- ⑤ Toggles -->
+        <section class="control-group">
+          <h3 class="group-title">Toggles</h3>
+          <div class="toggle-row" data-tooltip="Draw directional ASCII contour edge characters (| - / \)">
+            <label class="toggle-label">Draw Edges</label>
+            <button class="toggle-btn active" data-param="draw_edges" data-val="true">ON</button>
+          </div>
+          <div class="toggle-row" data-tooltip="Fill background region with density ASCII characters">
+            <label class="toggle-label">Draw Fill</label>
+            <button class="toggle-btn active" data-param="draw_fill" data-val="true">ON</button>
+          </div>
+          <div class="toggle-row" data-tooltip="Invert character density relationship (dark <-> light)">
+            <label class="toggle-label">Invert ASCII</label>
+            <button class="toggle-btn" data-param="invert_luminance" data-val="false">OFF</button>
+          </div>
+        </section>
+
+        <!-- ⑥ Edge Detection -->
+        <section class="control-group">
+          <h3 class="group-title">Edge Detection</h3>
+          <div class="control" data-param="kernel_size" data-min="1" data-max="10" data-step="1" data-default="2" data-int="true" data-tooltip="Radius of Gaussian blur kernel for edge filtering.">
+            <div class="control-header"><label>Kernel Size</label><span class="val">2</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="sigma" data-min="0.1" data-max="5.0" data-step="0.1" data-default="2.0" data-tooltip="Standard deviation (σ) of primary Gaussian blur.">
+            <div class="control-header"><label>Sigma</label><span class="val">2.0</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="sigma_scale" data-min="0.1" data-max="5.0" data-step="0.1" data-default="1.6" data-tooltip="Scale ratio between the two Gaussians for DoG difference.">
+            <div class="control-header"><label>Sigma Scale</label><span class="val">1.6</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="tau" data-min="0.0" data-max="2.0" data-step="0.05" data-default="1.0" data-tooltip="Subtraction weight factor applied to secondary Gaussian blur.">
+            <div class="control-header"><label>Tau</label><span class="val">1.00</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="threshold" data-min="0.001" data-max="0.1" data-step="0.001" data-default="0.005" data-tooltip="Minimum response threshold required to classify a pixel as an edge.">
+            <div class="control-header"><label>Threshold</label><span class="val">0.005</span></div>
+            <input type="range" />
+          </div>
+          <div class="control" data-param="edge_threshold" data-min="0" data-max="64" data-step="1" data-default="8" data-int="true" data-tooltip="Minimum pixel votes needed in an 8x8 tile to draw an edge character.">
+            <div class="control-header"><label>Edge Votes</label><span class="val">8</span></div>
+            <input type="range" />
+          </div>
+        </section>
+
+      </div>
+    </aside>
+  </div>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>
